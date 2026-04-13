@@ -4,7 +4,7 @@
   "description": "Screener saham IDX berbasis Sistem Trading Merah-Hijau",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#4fe8f0",
   "theme_color": "#0f172a",
   "orientation": "portrait",
   "icons": [

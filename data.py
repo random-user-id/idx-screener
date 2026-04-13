@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 BATCH_1 = [
     "BBCA", "BBRI", "BMRI", "TLKM", "ASII", "UNVR", "HMSP", "ICBP",
     "KLBF", "PGAS", "JSMR", "SMGR", "INDF", "PTBA", "ADRO", "ANTM",
-    "INCO", "VALE", "TINS", "MEDC", "EXCL", "ISAT", "MNCN", "EMTK",
+    "INCO", "TINS", "MEDC", "EXCL", "ISAT", "MNCN", "EMTK",
     "GOTO", "BUKA", "BRIS", "ARTO", "BBNI", "BJTM", "BDMN", "MEGA",
     "NISP", "PNBN", "BJBR", "AGRO", "BNGA", "BNLI", "BTPS", "NOBU",
     "AALI", "LSIP", "SSMS", "TBLA", "DSNG", "PALM", "SIMP", "ANJT"

@@ -2,442 +2,510 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#080c14" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>IDX Screener</title>
   <link rel="manifest" href="/static/manifest.json" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    body { background: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
-    .card { background: #1e293b; border-radius: 12px; }
-    .badge-hijau  { background: #14532d; color: #4ade80; border: 1px solid #16a34a; }
-    .badge-kuning { background: #713f12; color: #fbbf24; border: 1px solid #d97706; }
-    .badge-merah  { background: #450a0a; color: #f87171; border: 1px solid #dc2626; }
-    .badge-uptrend   { background: #14532d; color: #4ade80; }
-    .badge-sideways  { background: #713f12; color: #fbbf24; }
-    .badge-downtrend { background: #450a0a; color: #f87171; }
-    .tab-active { border-bottom: 2px solid #4ade80; color: #4ade80; }
-    .tab { color: #94a3b8; padding: 8px 16px; cursor: pointer; transition: all .2s; }
-    .tab:hover { color: #e2e8f0; }
-    .rule-dot-pass { background: #4ade80; }
-    .rule-dot-fail { background: #475569; }
-    .spinner { border: 3px solid #334155; border-top: 3px solid #4ade80;
-               border-radius: 50%; width: 32px; height: 32px;
-               animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .stock-row { border-bottom: 1px solid #334155; transition: background .15s; }
-    .stock-row:hover { background: #334155; cursor: pointer; }
-    .slide-panel { position: fixed; bottom: 0; left: 0; right: 0;
-                   background: #1e293b; border-radius: 16px 16px 0 0;
-                   max-height: 80vh; overflow-y: auto; z-index: 50;
-                   transform: translateY(100%); transition: transform .3s ease; }
-    .slide-panel.open { transform: translateY(0); }
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5);
-               z-index: 40; display: none; }
-    .overlay.open { display: block; }
+    :root {
+      --bg:#faf44d; --sur:#0d1420; --sur2:#111827;
+      --bd:#1e2d40; --bd2:#243349; --dim:#2a3f58;
+      --tx:#e2eaf6; --mt:#4a6080;
+      --gr:#00e5a0; --gr-bg:rgba(0,229,160,.08); --gr-bd:rgba(0,229,160,.2);
+      --ye:#f5c542; --ye-bg:rgba(245,197,66,.08); --ye-bd:rgba(245,197,66,.2);
+      --re:#ff4f6a; --re-bg:rgba(255,79,106,.08); --re-bd:rgba(255,79,106,.2);
+      --bl:#38bdf8;
+      --mono:'JetBrains Mono',monospace;
+      --sans:'Syne',sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+    /* HEADER */
+    .hdr{position:sticky;top:0;z-index:30;background:rgba(8,12,20,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .hdr-l{display:flex;align-items:center;gap:10px}
+    .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gr),#00a87a);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:12px;color:#080c14;flex-shrink:0}
+    .hdr-title{font-weight:700;font-size:15px;letter-spacing:-.3px}
+    .hdr-sub{font-size:11px;color:var(--mt);font-family:var(--mono)}
+    .btn-rf{display:flex;align-items:center;gap:6px;background:var(--sur2);border:1px solid var(--bd2);color:var(--tx);padding:7px 12px;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .btn-rf:hover{border-color:var(--gr);color:var(--gr)}
+    .spin{display:inline-block;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* IHSG */
+    .ihsg-w{padding:12px 16px 0}
+    .ihsg-c{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .ihsg-lbl{font-size:10px;color:var(--mt);font-family:var(--mono);letter-spacing:.6px;margin-bottom:5px}
+    .ihsg-mode{font-size:12px;font-weight:700;letter-spacing:.5px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px}
+    .ihsg-mode.UPTREND{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd)}
+    .ihsg-mode.SIDEWAYS{background:var(--ye-bg);color:var(--ye);border:1px solid var(--ye-bd)}
+    .ihsg-mode.DOWNTREND{background:var(--re-bg);color:var(--re);border:1px solid var(--re-bd)}
+    .ihsg-mode.UNKNOWN{background:var(--sur2);color:var(--mt);border:1px solid var(--bd)}
+    .ihsg-act{font-size:11px;color:var(--mt);margin-top:5px}
+    .ihsg-r{text-align:right}
+    .ihsg-close{font-family:var(--mono);font-size:17px;font-weight:700}
+    .ihsg-mas{font-family:var(--mono);font-size:10px;color:var(--mt);margin-top:3px;line-height:1.6}
+
+    /* CHIPS */
+    .chips{padding:12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .chip{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:12px 8px;text-align:center}
+    .chip-v{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1}
+    .chip-v.g{color:var(--gr)} .chip-v.y{color:var(--ye)} .chip-v.m{color:var(--mt)}
+    .chip-l{font-size:10px;color:var(--mt);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
+
+    /* TABS */
+    .tabs{padding:0 16px;display:flex;gap:4px;border-bottom:1px solid var(--bd)}
+    .tab{padding:10px 14px;font-size:12px;font-weight:700;color:var(--mt);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;letter-spacing:.3px;font-family:var(--sans)}
+    .tab:hover{color:var(--tx)}
+    .tab.on{color:var(--gr);border-bottom-color:var(--gr)}
+
+    /* TS BAR */
+    .tsbar{padding:6px 16px;font-size:10px;color:var(--dim);font-family:var(--mono);display:flex;justify-content:space-between}
+
+    /* TABLE */
+    .tbl-w{padding:8px 16px 24px}
+    .tbl-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .tbl-cnt{font-size:11px;color:var(--mt);font-family:var(--mono)}
+    .tbl-hint{font-size:10px;color:var(--dim)}
+    .tbl-box{background:var(--sur);border:1px solid var(--bd);border-radius:12px;overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:360px}
+    thead th{background:var(--sur2);padding:9px 10px;text-align:left;font-size:10px;font-weight:600;color:var(--mt);letter-spacing:.7px;text-transform:uppercase;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s}
+    thead th:hover{color:var(--tx)}
+    thead th.sorted{color:var(--gr)}
+    .arr{margin-left:2px;opacity:.4;font-size:9px}
+    .sorted .arr{opacity:1}
+    tbody tr{border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s}
+    tbody tr:last-child{border-bottom:none}
+    tbody tr:hover{background:rgba(255,255,255,.03)}
+    td{padding:10px 10px;vertical-align:middle}
+
+    /* Cells */
+    .td-kode{font-weight:700;font-size:13px;white-space:nowrap;color:var(--tx)}
+    .lq{display:inline-block;font-size:9px;padding:1px 4px;border-radius:4px;background:rgba(56,189,248,.1);color:var(--bl);border:1px solid rgba(56,189,248,.2);margin-left:3px;font-weight:600;vertical-align:middle}
+    .sig{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+    .sig.HIJAU{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd)}
+    .sig.KUNING{background:var(--ye-bg);color:var(--ye);border:1px solid var(--ye-bd)}
+    .sig.MERAH{background:var(--re-bg);color:var(--re);border:1px solid var(--re-bd)}
+    .num{text-align:right;white-space:nowrap}
+    .price{font-size:13px;font-weight:600}
+    .volx{font-size:12px;font-weight:600}
+    .vh{color:var(--gr)} .vm{color:var(--ye)} .vl{color:var(--mt)}
+
+    /* Rules dots */
+    .dots{display:flex;gap:2px}
+    .d{width:15px;height:15px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+    .d.p{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd)}
+    .d.f{background:var(--sur2);color:var(--dim);border:1px solid var(--bd)}
+    .d.must{border-width:1.5px}
+
+    /* Score bar */
+    .score{display:flex;align-items:center;gap:5px;justify-content:flex-end}
+    .score-n{font-size:11px;white-space:nowrap;min-width:24px;text-align:right}
+    .score-bar{height:4px;border-radius:2px;background:var(--bd2);width:36px;overflow:hidden;flex-shrink:0}
+    .score-fill{height:100%;border-radius:2px}
+
+    /* EMPTY */
+    .empty{text-align:center;padding:48px 16px;color:var(--mt)}
+    .empty-ico{font-size:28px;margin-bottom:10px}
+    .empty-txt{font-size:12px}
+
+    /* LOADER */
+    .loader{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 16px;gap:14px}
+    .loader-ring{width:36px;height:36px;border-radius:50%;border:3px solid var(--bd2);border-top-color:var(--gr);animation:spin .7s linear infinite}
+    .loader-txt{font-size:12px;color:var(--mt);font-family:var(--mono)}
+
+    /* ERROR */
+    .err-box{margin:16px;padding:16px;background:var(--re-bg);border:1px solid var(--re-bd);border-radius:12px;text-align:center}
+    .err-box p{color:var(--re);font-size:13px;margin-bottom:8px}
+    .btn-retry{background:none;border:1px solid var(--re-bd);color:var(--re);padding:6px 14px;border-radius:8px;font-family:var(--sans);font-size:12px;cursor:pointer}
+
+    /* DETAIL PANEL */
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:40;display:none;backdrop-filter:blur(4px)}
+    .ov.on{display:block}
+    .dp{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--sur);border-top:1px solid var(--bd2);border-radius:16px 16px 0 0;max-height:86vh;overflow-y:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1)}
+    .dp.on{transform:translateY(0)}
+    .dp-handle{display:flex;justify-content:center;padding:12px 0 4px}
+    .dp-bar{width:36px;height:4px;border-radius:2px;background:var(--bd2)}
+    .dp-body{padding:8px 16px 36px}
+    .dp-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+    .dp-kode{font-size:24px;font-weight:800;letter-spacing:-.5px}
+    .dp-sub{font-size:11px;color:var(--mt);font-family:var(--mono);margin-top:2px}
+    .dp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+    .dp-cell{background:var(--sur2);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+    .dp-cl{font-size:10px;color:var(--mt);font-family:var(--mono);margin-bottom:3px}
+    .dp-cv{font-family:var(--mono);font-size:14px;font-weight:600}
+    .dp-rules{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+    .rr{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:var(--sur2);border:1px solid var(--bd)}
+    .rr.p{border-color:var(--gr-bd);background:var(--gr-bg)}
+    .rr.f{opacity:.6}
+    .ri{font-size:13px;width:18px;text-align:center;flex-shrink:0}
+    .rn{font-size:12px;font-weight:600;flex:1}
+    .rr.p .rn{color:var(--tx)} .rr.f .rn{color:var(--mt)}
+    .rmust{font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(255,79,106,.1);color:var(--re);border:1px solid var(--re-bd);font-weight:700}
+    .dp-warn{background:rgba(245,197,66,.06);border:1px solid var(--ye-bd);border-radius:8px;padding:12px}
+    .dp-wt{font-size:11px;font-weight:700;color:var(--ye);margin-bottom:4px}
+    .dp-wb{font-size:11px;color:var(--mt);line-height:1.55}
+
+    /* PARAMS */
+    .prm-w{padding:12px 16px;display:flex;flex-direction:column;gap:12px}
+    .prm-c{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:16px}
+    .prm-t{font-size:13px;font-weight:700;margin-bottom:14px}
+    .prm-r{margin-bottom:14px}
+    .prm-l{display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-bottom:6px;font-family:var(--mono)}
+    .prm-l span:last-child{color:var(--gr);font-weight:700}
+    input[type=range]{width:100%;accent-color:var(--gr);cursor:pointer}
+    .btn-p{width:100%;background:var(--gr);color:#080c14;border:none;padding:12px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s}
+    .btn-p:hover{opacity:.85}
+    .btn-s{width:100%;background:var(--sur2);color:var(--tx);border:1px solid var(--bd2);padding:10px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
+    .btn-s:hover{border-color:var(--gr);color:var(--gr)}
+    .prm-note{font-size:10px;color:var(--dim);text-align:center;margin-top:6px;font-family:var(--mono)}
+
+    .hidden{display:none!important}
+    ::-webkit-scrollbar{width:4px;height:4px}
+    ::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
   </style>
 </head>
-<body class="min-h-screen">
+<body>
 
-  <!-- HEADER -->
-  <header class="px-4 pt-6 pb-3 flex items-center justify-between">
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="logo">IX</div>
     <div>
-      <h1 class="text-lg font-bold text-white">IDX Screener</h1>
-      <p class="text-xs text-slate-400" id="last-update">Memuat data...</p>
-    </div>
-    <button onclick="refreshData()"
-      class="bg-slate-700 hover:bg-slate-600 text-white text-sm px-3 py-1.5 rounded-lg flex items-center gap-2">
-      <span id="refresh-icon">↻</span> Refresh
-    </button>
-  </header>
-
-  <!-- IHSG BANNER -->
-  <div class="px-4 mb-3">
-    <div id="ihsg-banner" class="card p-3 flex items-center justify-between">
-      <div>
-        <p class="text-xs text-slate-400 mb-0.5">Kondisi IHSG</p>
-        <p id="ihsg-mode" class="font-semibold text-sm">—</p>
-        <p id="ihsg-action" class="text-xs text-slate-400 mt-0.5">—</p>
-      </div>
-      <div class="text-right">
-        <p class="text-xs text-slate-400">IHSG</p>
-        <p id="ihsg-close" class="text-white font-mono text-sm">—</p>
-        <p class="text-xs text-slate-400">MA50W: <span id="ihsg-ma50">—</span></p>
-      </div>
+      <div class="hdr-title">IDX Screener</div>
+      <div class="hdr-sub">Sistem Merah-Hijau</div>
     </div>
   </div>
+  <button class="btn-rf" id="btn-rf" onclick="refresh()">
+    <span id="rf-icon">↻</span> Refresh
+  </button>
+</header>
 
-  <!-- SUMMARY CHIPS -->
-  <div class="px-4 mb-4 flex gap-2">
-    <div class="flex-1 card p-2.5 text-center">
-      <p class="text-green-400 text-xl font-bold" id="count-hijau">—</p>
-      <p class="text-slate-400 text-xs">🟢 Hijau</p>
+<div class="ihsg-w hidden" id="s-ihsg">
+  <div class="ihsg-c">
+    <div>
+      <div class="ihsg-lbl">KONDISI IHSG</div>
+      <span class="ihsg-mode" id="ihsg-mode">—</span>
+      <div class="ihsg-act" id="ihsg-act">—</div>
     </div>
-    <div class="flex-1 card p-2.5 text-center">
-      <p class="text-yellow-400 text-xl font-bold" id="count-kuning">—</p>
-      <p class="text-slate-400 text-xs">🟡 Kuning</p>
-    </div>
-    <div class="flex-1 card p-2.5 text-center">
-      <p class="text-slate-400 text-xl font-bold" id="count-total">—</p>
-      <p class="text-slate-400 text-xs">Total</p>
-    </div>
-  </div>
-
-  <!-- TABS -->
-  <div class="px-4 flex border-b border-slate-700 mb-3">
-    <button class="tab tab-active" id="tab-hijau" onclick="switchTab('hijau')">🟢 Hijau</button>
-    <button class="tab" id="tab-kuning" onclick="switchTab('kuning')">🟡 Kuning</button>
-    <button class="tab" id="tab-params" onclick="switchTab('params')">⚙️ Parameter</button>
-  </div>
-
-  <!-- LOADING -->
-  <div id="loading" class="flex justify-center py-12">
-    <div class="spinner"></div>
-  </div>
-
-  <!-- ERROR -->
-  <div id="error-msg" class="hidden px-4 py-8 text-center text-slate-400">
-    <p class="text-2xl mb-2">⚠️</p>
-    <p id="error-text">Terjadi kesalahan</p>
-    <button onclick="refreshData()" class="mt-3 text-green-400 text-sm underline">Coba lagi</button>
-  </div>
-
-  <!-- STOCK LIST -->
-  <div id="stock-list" class="hidden px-4"></div>
-
-  <!-- PARAMS PANEL -->
-  <div id="params-panel" class="hidden px-4">
-    <div class="card p-4 space-y-4">
-      <h3 class="font-semibold text-white">Parameter Screener</h3>
-
-      <div>
-        <label class="text-xs text-slate-400">Volume Ratio (min)</label>
-        <div class="flex items-center gap-3 mt-1">
-          <input type="range" id="vol-ratio" min="1.0" max="3.0" step="0.1" value="1.5"
-            class="flex-1 accent-green-400" oninput="updateLabel('vol-ratio-val', this.value + 'x')" />
-          <span id="vol-ratio-val" class="text-white text-sm font-mono w-10">1.5x</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="text-xs text-slate-400">Pullback dari High (%)</label>
-        <div class="flex items-center gap-3 mt-1">
-          <input type="range" id="pullback" min="0.90" max="0.99" step="0.01" value="0.97"
-            class="flex-1 accent-green-400"
-            oninput="updateLabel('pullback-val', Math.round((1-this.value)*100) + '%')" />
-          <span id="pullback-val" class="text-white text-sm font-mono w-10">3%</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="text-xs text-slate-400">Support Tolerance (%)</label>
-        <div class="flex items-center gap-3 mt-1">
-          <input type="range" id="support" min="1.00" max="1.10" step="0.01" value="1.03"
-            class="flex-1 accent-green-400"
-            oninput="updateLabel('support-val', Math.round((this.value-1)*100) + '%')" />
-          <span id="support-val" class="text-white text-sm font-mono w-10">3%</span>
-        </div>
-      </div>
-
-      <button onclick="saveParams()"
-        class="w-full bg-green-600 hover:bg-green-500 text-white py-2.5 rounded-lg font-semibold text-sm">
-        Simpan & Jalankan Ulang
-      </button>
-
-      <div class="border-t border-slate-700 pt-3">
-        <p class="text-xs text-slate-400 mb-2">Manual Run Screener</p>
-        <button onclick="runScreener()"
-          class="w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm">
-          ▶ Jalankan Sekarang
-        </button>
-        <p class="text-xs text-slate-500 mt-1 text-center">Auto-run tiap 16.30 WIB hari kerja</p>
+    <div class="ihsg-r">
+      <div class="ihsg-close" id="ihsg-close">—</div>
+      <div class="ihsg-mas">
+        MA50W <span id="ihsg-m50" style="color:var(--tx)">—</span><br>
+        MA200W <span id="ihsg-m200" style="color:var(--tx)">—</span>
       </div>
     </div>
-
-    <!-- Notif setup -->
-    <div class="card p-4 mt-3">
-      <h3 class="font-semibold text-white mb-2">🔔 Push Notification</h3>
-      <p class="text-xs text-slate-400 mb-3">
-        Aktifkan untuk dapat notif saat ada sinyal HIJAU baru dari saham prioritas (LQ45/IDX80).
-      </p>
-      <button onclick="requestNotifPermission()"
-        class="w-full bg-blue-700 hover:bg-blue-600 text-white py-2 rounded-lg text-sm">
-        Aktifkan Notifikasi
-      </button>
-      <p id="notif-status" class="text-xs text-slate-400 mt-2 text-center"></p>
-    </div>
   </div>
+</div>
 
-  <!-- DETAIL SLIDE PANEL -->
-  <div class="overlay" id="overlay" onclick="closeDetail()"></div>
-  <div class="slide-panel" id="detail-panel">
-    <div class="p-4">
-      <div class="w-10 h-1 bg-slate-600 rounded mx-auto mb-4"></div>
-      <div id="detail-content"></div>
-    </div>
+<div class="chips hidden" id="s-chips">
+  <div class="chip"><div class="chip-v g" id="c-h">—</div><div class="chip-l">🟢 Hijau</div></div>
+  <div class="chip"><div class="chip-v y" id="c-k">—</div><div class="chip-l">🟡 Kuning</div></div>
+  <div class="chip"><div class="chip-v m" id="c-t">—</div><div class="chip-l">Total</div></div>
+</div>
+
+<div class="tabs hidden" id="s-tabs">
+  <button class="tab on" id="tab-hijau"  onclick="setTab('hijau')">🟢 HIJAU</button>
+  <button class="tab"    id="tab-kuning" onclick="setTab('kuning')">🟡 KUNING</button>
+  <button class="tab"    id="tab-params" onclick="setTab('params')">⚙ SETTING</button>
+</div>
+
+<div class="tsbar hidden" id="s-ts">
+  <span id="ts-dt">—</span><span id="ts-sc">—</span>
+</div>
+
+<div class="loader" id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-txt">Memuat data screener...</div>
+</div>
+
+<div class="err-box hidden" id="err-box">
+  <p id="err-txt">Gagal memuat data</p>
+  <button class="btn-retry" onclick="refresh()">Coba lagi</button>
+</div>
+
+<!-- TABLE -->
+<div class="tbl-w hidden" id="s-tbl">
+  <div class="tbl-meta">
+    <div class="tbl-cnt" id="tbl-cnt">—</div>
+    <div class="tbl-hint">Tap baris → detail</div>
   </div>
+  <div class="tbl-box">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="doSort('kode')">KODE <span class="arr" id="a-kode">↕</span></th>
+          <th onclick="doSort('signal')">SINYAL <span class="arr" id="a-signal">↕</span></th>
+          <th onclick="doSort('close')" style="text-align:right">HARGA <span class="arr" id="a-close">↕</span></th>
+          <th onclick="doSort('vol')" style="text-align:right">VOL <span class="arr" id="a-vol">↕</span></th>
+          <th>R1–R7</th>
+          <th onclick="doSort('score')" style="text-align:right">SCORE <span class="arr" id="a-score">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PARAMS -->
+<div class="prm-w hidden" id="s-prm">
+  <div class="prm-c">
+    <div class="prm-t">⚙ Parameter Screener</div>
+    <div class="prm-r">
+      <div class="prm-l"><span>Volume Ratio Minimum</span><span id="lv">1.5x</span></div>
+      <input type="range" id="sl-v" min="1.0" max="3.0" step="0.1" value="1.5"
+        oninput="document.getElementById('lv').textContent=parseFloat(this.value).toFixed(1)+'x'">
+    </div>
+    <div class="prm-r">
+      <div class="prm-l"><span>Pullback dari High</span><span id="lp">3%</span></div>
+      <input type="range" id="sl-p" min="1" max="10" step="1" value="3"
+        oninput="document.getElementById('lp').textContent=this.value+'%'">
+    </div>
+    <div class="prm-r">
+      <div class="prm-l"><span>Support Tolerance</span><span id="ls">3%</span></div>
+      <input type="range" id="sl-s" min="1" max="10" step="1" value="3"
+        oninput="document.getElementById('ls').textContent=this.value+'%'">
+    </div>
+    <button class="btn-p" onclick="saveParams()">Simpan Parameter</button>
+  </div>
+  <div class="prm-c">
+    <div class="prm-t">▶ Manual Run</div>
+    <button class="btn-s" id="btn-run" onclick="runScreener()">Jalankan Screener Sekarang</button>
+    <p class="prm-note">Auto-run tiap 16.30 WIB hari kerja</p>
+  </div>
+  <div class="prm-c">
+    <div class="prm-t">🔔 Push Notification</div>
+    <button class="btn-s" onclick="reqNotif()">Aktifkan Notifikasi Android</button>
+    <p class="prm-note" id="notif-st"></p>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="ov" id="ov" onclick="closeDetail()"></div>
+<div class="dp" id="dp">
+  <div class="dp-handle"><div class="dp-bar"></div></div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
 
 <script>
-  const API = "";  // Kosong = same origin, ganti ke URL Railway saat production
+const API='';
+let data=null, tab='hijau', sKey='score', sAsc=false;
 
-  let currentTab  = "hijau";
-  let cachedData  = null;
+const RULES=[
+  {k:'rule1',l:'Trend Harian (Close > MA20 > MA50)',must:false},
+  {k:'rule2',l:'Pullback dari High 20 Hari (≤ HHV×0.97)',must:false},
+  {k:'rule3',l:'Candle Hijau (Close > Open)',must:false},
+  {k:'rule4',l:'Volume Konfirmasi (> Vol MA20 × 1.5x)',must:true},
+  {k:'rule5',l:'Dekat Support Low 20 Hari (≤ LLV×1.03)',must:false},
+  {k:'rule6',l:'Higher Low (LLV5 > LLV20)',must:false},
+  {k:'rule7',l:'Trend Mingguan (Close > MA50W)',must:false},
+];
 
-  // ── FETCH DATA ──────────────────────────────────────────────────────────────
+async function refresh(){
+  setLoad(true);
+  const btn=document.getElementById('btn-rf');
+  const ico=document.getElementById('rf-icon');
+  btn.style.opacity='.6';btn.style.pointerEvents='none';
+  ico.className='spin';
+  try{
+    const r=await fetch(`${API}/screen`);
+    if(!r.ok)throw new Error(await r.text());
+    data=await r.json();
+    renderAll();
+  }catch(e){showErr(e.message||'Server belum siap — jalankan screener dulu');}
+  finally{
+    setLoad(false);
+    btn.style.opacity='';btn.style.pointerEvents='';
+    ico.className='';ico.textContent='↻';
+  }
+}
 
-  async function refreshData() {
-    setLoading(true);
-    try {
-      const res  = await fetch(`${API}/screen`);
-      if (!res.ok) throw new Error(await res.text());
-      cachedData = await res.json();
-      renderAll();
-    } catch (e) {
-      showError(e.message || "Gagal memuat data");
-    } finally {
-      setLoading(false);
-    }
+function renderAll(){
+  if(!data)return;
+  show('s-ihsg');show('s-chips');show('s-tabs');show('s-ts');
+
+  const ih=data.ihsg||{};
+  const mode=ih.mode||'UNKNOWN';
+  const mEl=document.getElementById('ihsg-mode');
+  mEl.textContent={UPTREND:'▲ UPTREND',SIDEWAYS:'→ SIDEWAYS',DOWNTREND:'▼ DOWNTREND',UNKNOWN:'? UNKNOWN'}[mode]||mode;
+  mEl.className=`ihsg-mode ${mode}`;
+  q('ihsg-act').textContent=ih.action||'—';
+  q('ihsg-close').textContent=fmt(ih.ihsg_close);
+  q('ihsg-m50').textContent=fmt(ih.ma50w);
+  q('ihsg-m200').textContent=fmt(ih.ma200w);
+
+  const s=data.summary||{};
+  q('c-h').textContent=s.hijau??'—';
+  q('c-k').textContent=s.kuning??'—';
+  q('c-t').textContent=data.total_screened??'—';
+
+  const ts=data.cached_at?new Date(data.cached_at).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'—';
+  q('ts-dt').textContent=`Update: ${ts}`;
+  q('ts-sc').textContent=`${data.total_screened??0} saham di-screen`;
+
+  renderTable();
+}
+
+function renderTable(){
+  if(!data)return;
+  const rows=(tab==='hijau'?data.hijau:data.kuning)||[];
+
+  const sorted=[...rows].sort((a,b)=>{
+    let va=gv(a),vb=gv(b);
+    if(typeof va==='string'){va=va.toLowerCase();vb=vb.toLowerCase();}
+    if(va<vb)return sAsc?-1:1;
+    if(va>vb)return sAsc?1:-1;
+    return 0;
+  });
+
+  window.__rows=sorted;
+  q('tbl-cnt').textContent=`${sorted.length} saham ${tab==='hijau'?'🟢 HIJAU':'🟡 KUNING'}`;
+
+  const tbody=document.getElementById('tbl-body');
+  if(!sorted.length){
+    tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><div class="empty-ico">🔍</div><div class="empty-txt">Tidak ada sinyal ${tab} saat ini</div></div></td></tr>`;
+    return;
   }
 
-  // ── RENDER ──────────────────────────────────────────────────────────────────
+  tbody.innerHTML=sorted.map((s,i)=>{
+    const d=s.details||{};
+    const vr=d.volume_ratio??0;
+    const vc=vr>=2?'vh':vr>=1.5?'vm':'vl';
+    const pct=Math.round((s.rules_passed/7)*100);
+    const fc=s.signal==='HIJAU'?'var(--gr)':'var(--ye)';
+    return `<tr onclick="showDetail(${i})">
+      <td class="td-kode">${s.kode}${s.priority?'<span class="lq">LQ</span>':''}</td>
+      <td><span class="sig ${s.signal}">${s.signal}</span></td>
+      <td class="num"><span class="price">${fmt(d.close)}</span></td>
+      <td class="num"><span class="volx ${vc}">${vr}x</span></td>
+      <td><div class="dots">${[1,2,3,4,5,6,7].map(n=>`<div class="d ${s['rule'+n]?'p':'f'}${n===4?' must':''}">${n}</div>`).join('')}</div></td>
+      <td class="num"><div class="score"><span class="score-n">${s.rules_passed}/7</span><div class="score-bar"><div class="score-fill" style="width:${pct}%;background:${fc}"></div></div></div></td>
+    </tr>`;
+  }).join('');
+}
 
-  function renderAll() {
-    if (!cachedData) return;
+function gv(s){
+  if(sKey==='kode')return s.kode;
+  if(sKey==='signal')return s.signal;
+  if(sKey==='close')return s.details?.close??0;
+  if(sKey==='vol')return s.details?.volume_ratio??0;
+  if(sKey==='score')return s.rules_passed??0;
+  return 0;
+}
 
-    // Last update
-    const ts = cachedData.cached_at
-      ? new Date(cachedData.cached_at).toLocaleString("id-ID")
-      : "—";
-    document.getElementById("last-update").textContent = `Update: ${ts}`;
+function doSort(k){
+  if(sKey===k)sAsc=!sAsc; else{sKey=k;sAsc=false;}
+  ['kode','signal','close','vol','score'].forEach(x=>{
+    const a=document.getElementById(`a-${x}`);
+    if(a)a.textContent='↕';
+    const th=document.querySelector(`th[onclick="doSort('${x}')"]`);
+    if(th)th.classList.remove('sorted');
+  });
+  const a=document.getElementById(`a-${k}`);
+  if(a)a.textContent=sAsc?'↑':'↓';
+  const th=document.querySelector(`th[onclick="doSort('${k}')"]`);
+  if(th)th.classList.add('sorted');
+  renderTable();
+}
 
-    // IHSG
-    const ihsg = cachedData.ihsg || {};
-    const mode = ihsg.mode || "UNKNOWN";
-    document.getElementById("ihsg-mode").textContent   = mode;
-    document.getElementById("ihsg-action").textContent = ihsg.action || "—";
-    document.getElementById("ihsg-close").textContent  =
-      ihsg.ihsg_close ? ihsg.ihsg_close.toLocaleString("id-ID") : "—";
-    document.getElementById("ihsg-ma50").textContent   =
-      ihsg.ma50w ? ihsg.ma50w.toLocaleString("id-ID") : "—";
-
-    const modeClass = {
-      UPTREND: "badge-uptrend", SIDEWAYS: "badge-sideways",
-      DOWNTREND: "badge-downtrend"
-    }[mode] || "";
-    const modeEl = document.getElementById("ihsg-mode");
-    modeEl.className = `font-semibold text-sm px-2 py-0.5 rounded ${modeClass}`;
-
-    // Summary
-    const s = cachedData.summary || {};
-    document.getElementById("count-hijau").textContent  = s.hijau  ?? "—";
-    document.getElementById("count-kuning").textContent = s.kuning ?? "—";
-    document.getElementById("count-total").textContent  = cachedData.total_screened ?? "—";
-
-    // List
-    renderStockList();
-    document.getElementById("stock-list").classList.remove("hidden");
-  }
-
-  function renderStockList() {
-    const list = document.getElementById("stock-list");
-    const data = currentTab === "hijau"
-      ? (cachedData.hijau  || [])
-      : (cachedData.kuning || []);
-
-    if (data.length === 0) {
-      list.innerHTML = `<p class="text-center text-slate-400 py-8">
-        Tidak ada sinyal ${currentTab} saat ini</p>`;
-      return;
-    }
-
-    list.innerHTML = data.map(s => `
-      <div class="stock-row py-3 flex items-center justify-between"
-           onclick="showDetail(${JSON.stringify(s).replace(/"/g, '&quot;')})">
-        <div class="flex-1">
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-white">${s.kode}</span>
-            ${s.priority ? '<span class="text-xs bg-blue-900 text-blue-300 px-1 rounded">LQ45</span>' : ''}
-          </div>
-          <div class="flex gap-2 mt-1">
-            ${rulesBar(s)}
-          </div>
-        </div>
-        <div class="text-right ml-3">
-          <p class="text-white font-mono text-sm">
-            ${s.details?.close ? s.details.close.toLocaleString("id-ID") : "—"}
-          </p>
-          <p class="text-xs ${s.details?.volume_ratio >= 2 ? 'text-green-400' : 'text-slate-400'}">
-            Vol ${s.details?.volume_ratio ?? "—"}x
-          </p>
-          <span class="badge-${s.signal.toLowerCase()} text-xs px-1.5 py-0.5 rounded">
-            ${s.signal}
-          </span>
-        </div>
+function showDetail(i){
+  const s=window.__rows?.[i];
+  if(!s)return;
+  const d=s.details||{};
+  document.getElementById('dp-body').innerHTML=`
+    <div class="dp-hdr">
+      <div>
+        <div class="dp-kode">${s.kode}${s.priority?'<span class="lq">LQ45</span>':''}</div>
+        <div class="dp-sub">${s.rules_passed}/7 rules terpenuhi &nbsp;•&nbsp; Sinyal ${s.signal}</div>
       </div>
-    `).join("");
-  }
-
-  function rulesBar(s) {
-    const rules = ["rule1","rule2","rule3","rule4","rule5","rule6","rule7"];
-    const labels = ["R1","R2","R3","R4","R5","R6","R7"];
-    return rules.map((r, i) =>
-      `<span class="text-xs px-1 rounded ${s[r] ? 'bg-green-900 text-green-400' : 'bg-slate-700 text-slate-500'}">
-        ${labels[i]}
-      </span>`
-    ).join("");
-  }
-
-  // ── DETAIL ──────────────────────────────────────────────────────────────────
-
-  function showDetail(s) {
-    const d = s.details || {};
-    const ruleLabels = {
-      rule1: "Trend Harian (MA20 > MA50)",
-      rule2: "Pullback dari High 20 Hari",
-      rule3: "Candle Hijau",
-      rule4: "Volume Konfirmasi (WAJIB)",
-      rule5: "Dekat Support Low 20 Hari",
-      rule6: "Higher Low Struktur",
-      rule7: "Trend Mingguan (MA50W)"
-    };
-
-    document.getElementById("detail-content").innerHTML = `
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-xl font-bold text-white">${s.kode}</h2>
-          <p class="text-slate-400 text-xs">${s.rules_passed ?? "?"}/7 rules terpenuhi</p>
-        </div>
-        <span class="badge-${s.signal.toLowerCase()} px-3 py-1 rounded-full font-semibold">
-          ${s.signal}
-        </span>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 mb-4">
-        ${dataCell("Close", d.close)}
-        ${dataCell("Open", d.open_last)}
-        ${dataCell("MA20", d.ma20)}
-        ${dataCell("MA50", d.ma50)}
-        ${dataCell("HHV20", d.hhv20)}
-        ${dataCell("LLV20", d.llv20)}
-        ${dataCell("Vol Ratio", d.volume_ratio ? d.volume_ratio + "x" : "—")}
-        ${dataCell("MA50W", d.weekly_ma50)}
-      </div>
-
-      <h3 class="text-sm font-semibold text-white mb-2">Rules Detail</h3>
-      <div class="space-y-2">
-        ${Object.entries(ruleLabels).map(([rule, label]) => `
-          <div class="flex items-center gap-2 text-sm">
-            <span class="${s[rule] ? 'text-green-400' : 'text-slate-500'}">
-              ${s[rule] ? '✅' : '⬜'}
-            </span>
-            <span class="${s[rule] ? 'text-white' : 'text-slate-500'}">${label}</span>
-            ${rule === 'rule4' && !s[rule]
-              ? '<span class="text-red-400 text-xs ml-auto">WAJIB!</span>' : ''}
-          </div>
-        `).join("")}
-      </div>
-
-      <div class="mt-4 p-3 bg-slate-700 rounded-lg">
-        <p class="text-xs text-yellow-400 font-semibold mb-1">⚠️ Verifikasi Manual</p>
-        <p class="text-xs text-slate-300">Cek chart: candle reversal (Hammer/Engulfing), struktur HH Weekly, kondisi IHSG sebelum entry.</p>
-      </div>
-    `;
-
-    document.getElementById("overlay").classList.add("open");
-    document.getElementById("detail-panel").classList.add("open");
-  }
-
-  function dataCell(label, val) {
-    return `<div class="bg-slate-700 rounded p-2">
-      <p class="text-xs text-slate-400">${label}</p>
-      <p class="text-white font-mono text-sm">${val ?? "—"}</p>
+      <span class="sig ${s.signal}">${s.signal}</span>
+    </div>
+    <div class="dp-grid">
+      <div class="dp-cell"><div class="dp-cl">CLOSE</div><div class="dp-cv">${fmt(d.close)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">OPEN</div><div class="dp-cv">${fmt(d.open_last)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">MA20 / MA50</div><div class="dp-cv" style="font-size:12px">${fmt(d.ma20)} / ${fmt(d.ma50)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">VOLUME RATIO</div><div class="dp-cv" style="color:${d.volume_ratio>=2?'var(--gr)':d.volume_ratio>=1.5?'var(--ye)':'var(--tx)'}">${d.volume_ratio??'—'}x</div></div>
+      <div class="dp-cell"><div class="dp-cl">HHV20 × 0.97</div><div class="dp-cv">${fmt(d.hhv20_97pct)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">LLV20 × 1.03</div><div class="dp-cv">${fmt(d.llv20_103pct)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">LLV5</div><div class="dp-cv">${fmt(d.llv5)}</div></div>
+      <div class="dp-cell"><div class="dp-cl">MA50W</div><div class="dp-cv">${fmt(d.weekly_ma50)}</div></div>
+    </div>
+    <div class="dp-rules">
+      ${RULES.map((r,i)=>{
+        const pass=s[r.k];
+        return`<div class="rr ${pass?'p':'f'}">
+          <div class="ri">${pass?'✓':'○'}</div>
+          <div class="rn">R${i+1} — ${r.l}</div>
+          ${r.must&&!pass?'<span class="rmust">WAJIB</span>':''}
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="dp-warn">
+      <div class="dp-wt">⚠ Verifikasi Manual Wajib</div>
+      <div class="dp-wb">Cek chart: candle reversal (Hammer / Bullish Engulfing), struktur Higher High mingguan, dan kondisi IHSG vs MA50W sebelum entry.</div>
     </div>`;
-  }
+  document.getElementById('ov').classList.add('on');
+  document.getElementById('dp').classList.add('on');
+}
 
-  function closeDetail() {
-    document.getElementById("overlay").classList.remove("open");
-    document.getElementById("detail-panel").classList.remove("open");
-  }
+function closeDetail(){
+  document.getElementById('ov').classList.remove('on');
+  document.getElementById('dp').classList.remove('on');
+}
 
-  // ── TABS ────────────────────────────────────────────────────────────────────
+function setTab(t){
+  tab=t;
+  ['hijau','kuning','params'].forEach(x=>{
+    document.getElementById(`tab-${x}`).classList.toggle('on',x===t);
+  });
+  document.getElementById('s-tbl').classList.toggle('hidden',t==='params');
+  document.getElementById('s-prm').classList.toggle('hidden',t!=='params');
+  if(t!=='params')renderTable();
+}
 
-  function switchTab(tab) {
-    currentTab = tab;
-    ["hijau","kuning","params"].forEach(t => {
-      document.getElementById(`tab-${t}`).classList.toggle("tab-active", t === tab);
-    });
-    document.getElementById("stock-list").classList.toggle("hidden", tab === "params");
-    document.getElementById("params-panel").classList.toggle("hidden", tab !== "params");
-    if (tab !== "params") renderStockList();
-  }
+async function saveParams(){
+  await fetch(`${API}/params`,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      min_volume_ratio:parseFloat(document.getElementById('sl-v').value),
+      pullback_pct:1-parseFloat(document.getElementById('sl-p').value)/100,
+      support_pct:1+parseFloat(document.getElementById('sl-s').value)/100
+    })
+  });
+  alert('✅ Parameter disimpan!');
+}
 
-  // ── PARAMS ──────────────────────────────────────────────────────────────────
+async function runScreener(){
+  const b=document.getElementById('btn-run');
+  b.disabled=true;b.textContent='⏳ Screener berjalan di background...';
+  await fetch(`${API}/screen/run`,{method:'POST'});
+  setTimeout(()=>{b.disabled=false;b.textContent='Jalankan Screener Sekarang';},8000);
+}
 
-  function updateLabel(id, val) {
-    document.getElementById(id).textContent = val;
-  }
+async function reqNotif(){
+  if(!('Notification' in window)){document.getElementById('notif-st').textContent='❌ Browser tidak support';return;}
+  const p=await Notification.requestPermission();
+  document.getElementById('notif-st').textContent=p==='granted'?'✅ Notifikasi aktif!':'❌ Ditolak — aktifkan di pengaturan';
+}
 
-  async function saveParams() {
-    const params = {
-      min_volume_ratio: parseFloat(document.getElementById("vol-ratio").value),
-      pullback_pct:     parseFloat(document.getElementById("pullback").value),
-      support_pct:      parseFloat(document.getElementById("support").value)
-    };
-    await fetch(`${API}/params`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(params)
-    });
-    alert("Parameter disimpan! Jalankan screener manual untuk hasil terbaru.");
-  }
+function fmt(v){if(v==null)return'—';return Number(v).toLocaleString('id-ID');}
+function q(id){return document.getElementById(id);}
+function show(id){document.getElementById(id).classList.remove('hidden');}
+function setLoad(on){
+  document.getElementById('loader').classList.toggle('hidden',!on);
+  document.getElementById('err-box').classList.add('hidden');
+  if(on){['s-tbl','s-prm'].forEach(x=>document.getElementById(x).classList.add('hidden'));}
+  else if(tab!=='params'){document.getElementById('s-tbl').classList.remove('hidden');}
+}
+function showErr(msg){
+  document.getElementById('loader').classList.add('hidden');
+  document.getElementById('err-box').classList.remove('hidden');
+  q('err-txt').textContent=msg;
+}
 
-  async function runScreener() {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.textContent = "⏳ Memproses...";
-    await fetch(`${API}/screen/run`, { method: "POST" });
-    btn.textContent = "✅ Screener berjalan di background (~2-3 menit)";
-    setTimeout(() => { btn.disabled = false; btn.textContent = "▶ Jalankan Sekarang"; }, 5000);
-  }
-
-  // ── NOTIFIKASI ──────────────────────────────────────────────────────────────
-
-  async function requestNotifPermission() {
-    if (!("Notification" in window)) {
-      document.getElementById("notif-status").textContent = "Browser tidak support notifikasi";
-      return;
-    }
-    const permission = await Notification.requestPermission();
-    document.getElementById("notif-status").textContent =
-      permission === "granted"
-        ? "✅ Notifikasi aktif!"
-        : "❌ Notifikasi ditolak — aktifkan di pengaturan browser";
-  }
-
-  // ── HELPERS ─────────────────────────────────────────────────────────────────
-
-  function setLoading(show) {
-    document.getElementById("loading").classList.toggle("hidden", !show);
-    document.getElementById("stock-list").classList.toggle("hidden", show);
-    document.getElementById("error-msg").classList.add("hidden");
-    const icon = document.getElementById("refresh-icon");
-    icon.textContent = show ? "⏳" : "↻";
-  }
-
-  function showError(msg) {
-    document.getElementById("loading").classList.add("hidden");
-    document.getElementById("stock-list").classList.add("hidden");
-    document.getElementById("error-msg").classList.remove("hidden");
-    document.getElementById("error-text").textContent = msg;
-  }
-
-  // ── INIT ────────────────────────────────────────────────────────────────────
-  refreshData();
-  // Auto-refresh tiap 5 menit
-  setInterval(refreshData, 5 * 60 * 1000);
+refresh();
+setInterval(refresh,5*60*1000);
 </script>
 </body>
 </html>
