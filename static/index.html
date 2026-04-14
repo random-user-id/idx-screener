@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#080c14" />
+  <meta name="theme-color" content="#f5f7fa" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>IDX Screener</title>
@@ -11,33 +11,34 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:#faf44d; --sur:#0d1420; --sur2:#111827;
-      --bd:#1e2d40; --bd2:#243349; --dim:#2a3f58;
-      --tx:#e2eaf6; --mt:#4a6080;
-      --gr:#00e5a0; --gr-bg:rgba(0,229,160,.08); --gr-bd:rgba(0,229,160,.2);
-      --ye:#f5c542; --ye-bg:rgba(245,197,66,.08); --ye-bd:rgba(245,197,66,.2);
-      --re:#ff4f6a; --re-bg:rgba(255,79,106,.08); --re-bd:rgba(255,79,106,.2);
-      --bl:#38bdf8;
+      --bg:#f5f7fa; --sur:#ffffff; --sur2:#f0f3f7;
+      --bd:#dde3ec; --bd2:#c8d0dc; --dim:#a0aab8;
+      --tx:#1a2332; --mt:#6b7a8d;
+      --gr:#00966a; --gr-bg:rgba(0,150,106,.08); --gr-bd:rgba(0,150,106,.25);
+      --ye:#b07b00; --ye-bg:rgba(176,123,0,.08); --ye-bd:rgba(176,123,0,.25);
+      --re:#d63355; --re-bg:rgba(214,51,85,.08); --re-bd:rgba(214,51,85,.25);
+      --bl:#0e7490;
       --mono:'JetBrains Mono',monospace;
       --sans:'Syne',sans-serif;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+    html,body{background:#f5f7fa}
+    body{color:var(--tx);font-family:var(--sans);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
 
     /* HEADER */
-    .hdr{position:sticky;top:0;z-index:30;background:rgba(8,12,20,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .hdr{position:sticky;top:0;z-index:30;background:rgba(245,247,250,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
     .hdr-l{display:flex;align-items:center;gap:10px}
-    .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gr),#00a87a);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:12px;color:#080c14;flex-shrink:0}
-    .hdr-title{font-weight:700;font-size:15px;letter-spacing:-.3px}
+    .logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--gr),#007a55);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:12px;color:#ffffff;flex-shrink:0}
+    .hdr-title{font-weight:700;font-size:15px;letter-spacing:-.3px;color:var(--tx)}
     .hdr-sub{font-size:11px;color:var(--mt);font-family:var(--mono)}
-    .btn-rf{display:flex;align-items:center;gap:6px;background:var(--sur2);border:1px solid var(--bd2);color:var(--tx);padding:7px 12px;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+    .btn-rf{display:flex;align-items:center;gap:6px;background:var(--sur);border:1px solid var(--bd2);color:var(--tx);padding:7px 12px;border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
     .btn-rf:hover{border-color:var(--gr);color:var(--gr)}
     .spin{display:inline-block;animation:spin .7s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
     /* IHSG */
     .ihsg-w{padding:12px 16px 0}
-    .ihsg-c{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .ihsg-c{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.06)}
     .ihsg-lbl{font-size:10px;color:var(--mt);font-family:var(--mono);letter-spacing:.6px;margin-bottom:5px}
     .ihsg-mode{font-size:12px;font-weight:700;letter-spacing:.5px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px}
     .ihsg-mode.UPTREND{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd)}
@@ -46,12 +47,12 @@
     .ihsg-mode.UNKNOWN{background:var(--sur2);color:var(--mt);border:1px solid var(--bd)}
     .ihsg-act{font-size:11px;color:var(--mt);margin-top:5px}
     .ihsg-r{text-align:right}
-    .ihsg-close{font-family:var(--mono);font-size:17px;font-weight:700}
+    .ihsg-close{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--tx)}
     .ihsg-mas{font-family:var(--mono);font-size:10px;color:var(--mt);margin-top:3px;line-height:1.6}
 
     /* CHIPS */
     .chips{padding:12px 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .chip{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:12px 8px;text-align:center}
+    .chip{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:12px 8px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.05)}
     .chip-v{font-family:var(--mono);font-size:22px;font-weight:700;line-height:1}
     .chip-v.g{color:var(--gr)} .chip-v.y{color:var(--ye)} .chip-v.m{color:var(--mt)}
     .chip-l{font-size:10px;color:var(--mt);margin-top:4px;letter-spacing:.5px;text-transform:uppercase}
@@ -70,7 +71,7 @@
     .tbl-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
     .tbl-cnt{font-size:11px;color:var(--mt);font-family:var(--mono)}
     .tbl-hint{font-size:10px;color:var(--dim)}
-    .tbl-box{background:var(--sur);border:1px solid var(--bd);border-radius:12px;overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .tbl-box{background:var(--sur);border:1px solid var(--bd);border-radius:12px;overflow:hidden;overflow-x:auto;-webkit-overflow-scrolling:touch;box-shadow:0 1px 4px rgba(0,0,0,.06)}
     table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;min-width:360px}
     thead th{background:var(--sur2);padding:9px 10px;text-align:left;font-size:10px;font-weight:600;color:var(--mt);letter-spacing:.7px;text-transform:uppercase;border-bottom:1px solid var(--bd);white-space:nowrap;cursor:pointer;user-select:none;transition:color .15s}
     thead th:hover{color:var(--tx)}
@@ -79,18 +80,18 @@
     .sorted .arr{opacity:1}
     tbody tr{border-bottom:1px solid var(--bd);cursor:pointer;transition:background .1s}
     tbody tr:last-child{border-bottom:none}
-    tbody tr:hover{background:rgba(255,255,255,.03)}
+    tbody tr:hover{background:var(--sur2)}
     td{padding:10px 10px;vertical-align:middle}
 
     /* Cells */
     .td-kode{font-weight:700;font-size:13px;white-space:nowrap;color:var(--tx)}
-    .lq{display:inline-block;font-size:9px;padding:1px 4px;border-radius:4px;background:rgba(56,189,248,.1);color:var(--bl);border:1px solid rgba(56,189,248,.2);margin-left:3px;font-weight:600;vertical-align:middle}
+    .lq{display:inline-block;font-size:9px;padding:1px 4px;border-radius:4px;background:rgba(14,116,144,.1);color:var(--bl);border:1px solid rgba(14,116,144,.25);margin-left:3px;font-weight:600;vertical-align:middle}
     .sig{display:inline-flex;align-items:center;padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
     .sig.HIJAU{background:var(--gr-bg);color:var(--gr);border:1px solid var(--gr-bd)}
     .sig.KUNING{background:var(--ye-bg);color:var(--ye);border:1px solid var(--ye-bd)}
     .sig.MERAH{background:var(--re-bg);color:var(--re);border:1px solid var(--re-bd)}
     .num{text-align:right;white-space:nowrap}
-    .price{font-size:13px;font-weight:600}
+    .price{font-size:13px;font-weight:600;color:var(--tx)}
     .volx{font-size:12px;font-weight:600}
     .vh{color:var(--gr)} .vm{color:var(--ye)} .vl{color:var(--mt)}
 
@@ -157,11 +158,15 @@
     .prm-l{display:flex;justify-content:space-between;font-size:11px;color:var(--mt);margin-bottom:6px;font-family:var(--mono)}
     .prm-l span:last-child{color:var(--gr);font-weight:700}
     input[type=range]{width:100%;accent-color:var(--gr);cursor:pointer}
-    .btn-p{width:100%;background:var(--gr);color:#080c14;border:none;padding:12px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s}
+    .btn-p{width:100%;background:var(--gr);color:#ffffff;border:none;padding:12px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:opacity .2s}
     .btn-p:hover{opacity:.85}
     .btn-s{width:100%;background:var(--sur2);color:var(--tx);border:1px solid var(--bd2);padding:10px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
     .btn-s:hover{border-color:var(--gr);color:var(--gr)}
     .prm-note{font-size:10px;color:var(--dim);text-align:center;margin-top:6px;font-family:var(--mono)}
+    .dp-warn{background:rgba(176,123,0,.06);border:1px solid var(--ye-bd);border-radius:8px;padding:12px}
+    .dp-wt{font-size:11px;font-weight:700;color:var(--ye);margin-bottom:4px}
+    .dp-wb{font-size:11px;color:var(--mt);line-height:1.55}
+    .rmust{font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(214,51,85,.1);color:var(--re);border:1px solid var(--re-bd);font-weight:700}
 
     .hidden{display:none!important}
     ::-webkit-scrollbar{width:4px;height:4px}
@@ -311,7 +316,12 @@ async function refresh(){
   ico.className='spin';
   try{
     const r=await fetch(`${API}/screen`);
-    if(!r.ok)throw new Error(await r.text());
+    if(!r.ok){
+      const txt=await r.text();
+      // 503 = belum ada cache, bukan error server
+      if(r.status===503)throw new Error('Screener belum pernah dijalankan — buka tab ⚙ Setting → Jalankan Screener Sekarang');
+      throw new Error(txt);
+    }
     data=await r.json();
     renderAll();
   }catch(e){showErr(e.message||'Server belum siap — jalankan screener dulu');}
