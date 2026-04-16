@@ -5,8 +5,17 @@ FastAPI Backend — IDX Screener Sistem Merah-Hijau
 
 import logging
 import os
+import pytz
 from datetime import datetime
 from contextlib import asynccontextmanager
+
+# Force timezone ke WIB (UTC+7)
+os.environ["TZ"] = "Asia/Jakarta"
+WIB = pytz.timezone("Asia/Jakarta")
+
+def now_wib():
+    """Return datetime sekarang dalam WIB."""
+    return datetime.now(WIB)
 
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -42,7 +51,7 @@ async def run_full_screener():
     Dijadwalkan otomatis jam 16.30 WIB setiap hari kerja.
     """
     logger.info("=== SCREENER DIMULAI ===")
-    start_time = datetime.now()
+    start_time = now_wib()
 
     # 1. Cek kondisi IHSG
     logger.info("Fetch IHSG...")
@@ -89,7 +98,7 @@ async def run_full_screener():
         "merah":         results_merah,
         "errors":        errors,
         "total_screened": len(raw_data),
-        "duration_sec":  round((datetime.now() - start_time).total_seconds(), 1)
+        "duration_sec":  round((now_wib() - start_time).total_seconds(), 1)
     }
     save_cache(cache_data)
 
@@ -119,6 +128,7 @@ async def lifespan(app: FastAPI):
         day_of_week="mon-fri",
         hour=16,
         minute=30,
+        timezone=WIB,
         id="daily_screener"
     )
     scheduler.start()
@@ -173,7 +183,7 @@ async def health():
     cache = load_cache()
     return {
         "status":       "ok",
-        "time":         datetime.now().isoformat(),
+        "time_wib":     now_wib().strftime("%Y-%m-%d %H:%M:%S WIB"),
         "cache_fresh":  is_cache_fresh(),
         "cached_at":    cache.get("cached_at") if cache else None,
         "next_run":     "16:30 WIB (hari kerja)"
@@ -224,17 +234,38 @@ async def get_screen_results(signal: str = "all"):
 async def get_single_stock(kode: str):
     """Analisis 1 saham secara real-time."""
     from data import fetch_single
+    import traceback
     kode = kode.upper()
     logger.info(f"Real-time screen: {kode}")
 
-    item = fetch_single(kode)
-    if item["error"]:
-        raise HTTPException(status_code=404, detail=f"Gagal fetch {kode}: {item['error']}")
+    try:
+        item = fetch_single(kode)
+        if item["error"]:
+            raise HTTPException(status_code=404, detail=f"Gagal fetch {kode}: {item['error']}")
 
-    result = apply_rules(item["daily"], item["weekly"])
-    result["kode"] = kode
-    result["fetched_at"] = datetime.now().isoformat()
-    return result
+        # Debug: cek struktur data sebelum apply_rules
+        logger.info(f"{kode} daily shape: {item['daily'].shape}")
+        logger.info(f"{kode} daily columns: {item['daily'].columns.tolist()}")
+        logger.info(f"{kode} daily index type: {type(item['daily'].index)}")
+
+        result = apply_rules(item["daily"], item["weekly"])
+        result["kode"] = kode
+        result["fetched_at"] = now_wib().strftime("%Y-%m-%d %H:%M:%S WIB")
+        return result
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        err_detail = traceback.format_exc()
+        logger.error(f"Error screen {kode}: {err_detail}")
+        # Tampilkan detail error langsung di response (untuk debugging)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": str(e),
+                "traceback": err_detail.split("\n")
+            }
+        )
 
 
 @app.post("/screen/run")

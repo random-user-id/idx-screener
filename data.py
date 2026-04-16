@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 BATCH_1 = [
     "BBCA", "BBRI", "BMRI", "TLKM", "ASII", "UNVR", "HMSP", "ICBP",
     "KLBF", "PGAS", "JSMR", "SMGR", "INDF", "PTBA", "ADRO", "ANTM",
-    "INCO", "TINS", "MEDC", "EXCL", "ISAT", "MNCN", "EMTK",
+    "INCO", "VALE", "TINS", "MEDC", "EXCL", "ISAT", "MNCN", "EMTK",
     "GOTO", "BUKA", "BRIS", "ARTO", "BBNI", "BJTM", "BDMN", "MEGA",
     "NISP", "PNBN", "BJBR", "AGRO", "BNGA", "BNLI", "BTPS", "NOBU",
     "AALI", "LSIP", "SSMS", "TBLA", "DSNG", "PALM", "SIMP", "ANJT"
@@ -189,8 +189,10 @@ CACHE_FILE = os.path.join(CACHE_DIR, "screen_result.json")
 
 def save_cache(data: dict):
     """Simpan hasil screener ke JSON cache."""
+    import pytz
+    wib = pytz.timezone("Asia/Jakarta")
     os.makedirs(CACHE_DIR, exist_ok=True)
-    data["cached_at"] = datetime.now().isoformat()
+    data["cached_at"] = datetime.now(wib).strftime("%Y-%m-%d %H:%M:%S WIB")
     with open(CACHE_FILE, "w") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     logger.info(f"Cache disimpan: {CACHE_FILE}")
